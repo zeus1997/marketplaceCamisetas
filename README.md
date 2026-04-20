@@ -1,5 +1,25 @@
 # Marketplace Camisetas API
 
+## Configuración JWT (obligatoria)
+- Definí la variable de entorno `APP_JWT_SECRET` antes de iniciar la app.
+- Ejemplo en PowerShell (sesión actual):
+  - `$env:APP_JWT_SECRET="marketplace-camisetas-uade-2026-secret-key-for-development-only"`
+- Ejemplo permanente en Windows (usuario actual):
+  - `setx APP_JWT_SECRET "marketplace-camisetas-uade-2026-secret-key-for-development-only"`
+
+## Postman: importar colección y environment
+- Archivos incluidos en el repo:
+  - `MarketplaceCamisetas.postman_collection.json`
+  - `MarketplaceCamisetas.local.postman_environment.json`
+- En Postman, usar **Import** y seleccionar ambos archivos.
+- Seleccionar el environment `Marketplace Camisetas - Local`.
+- Ejecutar requests en este orden:
+  1. `1. Auth`
+  2. `2. Catalogo (ADMIN)`
+  3. `3. Camisetas y Variantes`
+  4. `4. Carrito y Pedidos (USER)`
+  5. `5. Usuarios y Pedidos (ADMIN)`
+
 ## Credenciales de Administrador (Pruebas)
 - **Usuario:** `admin@mail.com`
 - **Contraseña:** `Password123!`

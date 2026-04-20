@@ -1,0 +1,542 @@
+{
+  "info": {
+    "_postman_id": "7c4573f6-5159-47ca-bf01-0f6f8e9f224c",
+    "name": "Marketplace Camisetas - DEV",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Coleccion para probar el backend de marketplace con datos y flujo completo de compra."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token_admin", "value": "" },
+    { "key": "token_user", "value": "" },
+    { "key": "paisId_argentina", "value": "" },
+    { "key": "generoId_hombre", "value": "" },
+    { "key": "tipoId_titular", "value": "" },
+    { "key": "talleId_m", "value": "" },
+    { "key": "camisetaId_argentina", "value": "" },
+    { "key": "varianteId_argentina_m", "value": "" },
+    { "key": "carritoItemId", "value": "" },
+    { "key": "pedidoId", "value": "" },
+    { "key": "usuarioAdminId", "value": "" },
+    { "key": "usuarioUserId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Bootstrap Admin (primera vez)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Martin\",\n  \"apellido\": \"Arias\",\n  \"email\": \"admin.marketplace@uade.edu.ar\",\n  \"password\": \"Admin123\",\n  \"direccion\": \"Av. Cabildo 2150, CABA\",\n  \"telefono\": \"+54 11 5555-0101\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/bootstrap-admin"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('token_admin', json.token);",
+                  "  pm.environment.set('usuarioAdminId', json.usuarioId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register User (comprador)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Lucia\",\n  \"apellido\": \"Fernandez\",\n  \"email\": \"lucia.fernandez@gmail.com\",\n  \"password\": \"Comprador123\",\n  \"direccion\": \"Calle 12 N 742, La Plata\",\n  \"telefono\": \"+54 221 444-7788\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('usuarioUserId', json.usuarioId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Admin",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin.marketplace@uade.edu.ar\",\n  \"password\": \"Admin123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('token_admin', json.token);",
+                  "  pm.environment.set('usuarioAdminId', json.usuarioId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"lucia.fernandez@gmail.com\",\n  \"password\": \"Comprador123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('token_user', json.token);",
+                  "  pm.environment.set('usuarioUserId', json.usuarioId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Catalogo (ADMIN)",
+      "item": [
+        {
+          "name": "Crear Pais - Argentina",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Argentina\",\n  \"grupoMundial\": \"C\"\n}"
+            },
+            "url": "{{baseUrl}}/api/catalogo/paises"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('paisId_argentina', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear Genero - Hombre",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Hombre\"\n}"
+            },
+            "url": "{{baseUrl}}/api/catalogo/generos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('generoId_hombre', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear Talle - M",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"M\"\n}"
+            },
+            "url": "{{baseUrl}}/api/catalogo/talles"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('talleId_m', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear Tipo Camiseta - Titular",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Titular\",\n  \"titular\": true,\n  \"alternativa\": false\n}"
+            },
+            "url": "{{baseUrl}}/api/catalogo/tipos-camiseta"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('tipoId_titular', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar Catalogo Publico",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/catalogo/paises"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Camisetas y Variantes",
+      "item": [
+        {
+          "name": "Crear Camiseta - Argentina Titular 2026 (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Camiseta Argentina Titular 2026\",\n  \"descripcion\": \"Modelo titular celeste y blanco con detalles dorados.\",\n  \"precio\": 129999.90,\n  \"imagen\": \"https://img.ejemplo.com/argentina-2026-titular.jpg\",\n  \"tipoCamisetaId\": {{tipoId_titular}},\n  \"generoId\": {{generoId_hombre}},\n  \"paisId\": {{paisId_argentina}}\n}"
+            },
+            "url": "{{baseUrl}}/api/camisetas"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('camisetaId_argentina', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear Variante M - Azul Noche (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"talleId\": {{talleId_m}},\n  \"stock\": 25,\n  \"sku\": \"ARG-2026-TIT-M-AZN\",\n  \"color\": \"Azul noche\"\n}"
+            },
+            "url": "{{baseUrl}}/api/camisetas/{{camisetaId_argentina}}/variantes"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('varianteId_argentina_m', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar Stock Variante (ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stock\": 40\n}"
+            },
+            "url": "{{baseUrl}}/api/camisetas/variantes/{{varianteId_argentina_m}}/stock"
+          }
+        },
+        {
+          "name": "Aplicar Descuento 15% (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"porcentaje\": 15,\n  \"fechaInicio\": \"2026-04-20\",\n  \"fechaFin\": \"2026-05-20\"\n}"
+            },
+            "url": "{{baseUrl}}/api/camisetas/{{camisetaId_argentina}}/descuento"
+          }
+        },
+        {
+          "name": "Listar Camisetas (Publico)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/camisetas?search=argentina&minPrecio=50000&maxPrecio=200000"
+          }
+        },
+        {
+          "name": "Listar Variantes de la Camiseta",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/camisetas/{{camisetaId_argentina}}/variantes"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Carrito y Pedidos (USER)",
+      "item": [
+        {
+          "name": "Ver Mi Carrito",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_user}}" }
+            ],
+            "url": "{{baseUrl}}/api/carrito"
+          }
+        },
+        {
+          "name": "Agregar Item al Carrito",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_user}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"varianteId\": {{varianteId_argentina_m}},\n  \"cantidad\": 2\n}"
+            },
+            "url": "{{baseUrl}}/api/carrito/items"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.items && json.items.length > 0) {",
+                  "    pm.environment.set('carritoItemId', json.items[0].id);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar Cantidad del Item",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_user}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cantidad\": 1\n}"
+            },
+            "url": "{{baseUrl}}/api/carrito/items/{{carritoItemId}}"
+          }
+        },
+        {
+          "name": "Checkout - Crear Pedido",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_user}}" }
+            ],
+            "url": "{{baseUrl}}/api/pedidos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('pedidoId', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar Mis Pedidos",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_user}}" }
+            ],
+            "url": "{{baseUrl}}/api/pedidos"
+          }
+        },
+        {
+          "name": "Cancelar Mi Pedido",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_user}}" }
+            ],
+            "url": "{{baseUrl}}/api/pedidos/{{pedidoId}}/cancelar"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Usuarios y Pedidos (ADMIN)",
+      "item": [
+        {
+          "name": "Obtener Mi Perfil (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{baseUrl}}/api/usuarios/me"
+          }
+        },
+        {
+          "name": "Listar Usuarios (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{baseUrl}}/api/usuarios"
+          }
+        },
+        {
+          "name": "Crear Usuario desde Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Nicolas\",\n  \"apellido\": \"Suarez\",\n  \"email\": \"nico.suarez@hotmail.com\",\n  \"password\": \"Temporal123\",\n  \"direccion\": \"Paraguay 3100, Rosario\",\n  \"telefono\": \"+54 341 333-2211\",\n  \"rol\": \"USER\"\n}"
+            },
+            "url": "{{baseUrl}}/api/usuarios"
+          }
+        },
+        {
+          "name": "Listar Pedidos (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "url": "{{baseUrl}}/api/pedidos"
+          }
+        },
+        {
+          "name": "Actualizar Estado Pedido (ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"ENVIADO\"\n}"
+            },
+            "url": "{{baseUrl}}/api/pedidos/{{pedidoId}}/estado"
+          }
+        }
+      ]
+    }
+  ]
+}
